@@ -1,0 +1,6 @@
+../CanServer/can_msg.cpp:12:1:CanMsg::CanMsg()	16	static
+../CanServer/can_msg.cpp:20:1:CanMsg::~CanMsg()	16	static
+../CanServer/can_msg.cpp:20:1:virtual CanMsg::~CanMsg()	16	static
+../CanServer/can_msg.cpp:24:6:void CanMsg::setData(const uint8_t*, uint8_t)	24	static
+../CanServer/can_msg.cpp:33:6:void CanMsg::setHeader(FDCAN_RxHeaderTypeDef)	24	static
+../CanServer/can_msg.cpp:38:23:FDCAN_RxHeaderTypeDef CanMsg::getHeader()	24	static
