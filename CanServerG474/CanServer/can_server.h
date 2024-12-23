@@ -9,8 +9,8 @@
 #define CAN_SERVER_H_
 
 #include "main.h"
-#include "cmsis_os2.h"
 #include "can_msg.h"
+#include "cmsis_os2.h"
 
 class CanServer
 {
@@ -34,23 +34,30 @@ class CanServer
 			Update,
 			Filter,
 			IsrTx,
-			IsrRx
+			IsrRx,
+			Send,
+			Get
 		};
 
 		Error init();
 		Error update();
 		void setHandleCan(FDCAN_HandleTypeDef *hfdcan);
 		void setHandleQueueRxCan(osMessageQueueId_t *queueRxCan);
-		Error updateCanRxFifo0Interrupt(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifoITs);
-		Error updateCanRxFifo1Interrupt(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifoITs);
-		Error updateCanTxInterrupt();
+		void setHandleSemaphoreTxCan(osSemaphoreId_t *semTxCan);
+		Error updateCanRxFifo0Interrupt(FDCAN_HandleTypeDef *hfdcan, uint32_t isrType);
+		Error updateCanRxFifo1Interrupt(FDCAN_HandleTypeDef *hfdcan, uint32_t isrType);
+		Error updateCanTxInterrupt(FDCAN_HandleTypeDef *hfdcan);
+		Error sendMsg(CanMsg *msg);
+		Error sendMsg(FDCAN_TxHeaderTypeDef txHeader, uint8_t *data, uint8_t size);
+		Error getMsg(CanMsg *msg);
 
 	private:
 		Error setupFilter();
 
 		State m_state;
 		FDCAN_HandleTypeDef *m_hfdcan;
-		osMessageQueueId_t m_queueRxCan;
+		osMessageQueueId_t *m_queueRxCan;
+		osSemaphoreId_t *m_semTxCan;
 };
 
 #endif /* CAN_SERVER_H_ */

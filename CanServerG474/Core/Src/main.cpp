@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "../../CanServer/can_server.h"
+#include "../../CanServer/can_msg.h"
 
 /* USER CODE END Includes */
 
@@ -59,6 +60,16 @@ const osThreadAttr_t taskCanRx_attributes = { .name = "taskCanRx", .stack_size =
 osThreadId_t taskCanTxHandle;
 const osThreadAttr_t taskCanTx_attributes = { .name = "taskCanTx", .stack_size =
 		128 * 4, .priority = (osPriority_t) osPriorityNormal };
+/* Definitions for queueRxCan */
+osMessageQueueId_t queueRxCanHandle;
+const osMessageQueueAttr_t queueRxCan_attributes = {
+  .name = "queueRxCan"
+};
+/* Definitions for semTxCan */
+osSemaphoreId_t semTxCanHandle;
+const osSemaphoreAttr_t semTxCan_attributes = {
+  .name = "semTxCan"
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -84,6 +95,8 @@ int _write(int file, char *data, int len)
 	HAL_UART_Transmit(&huart2, (uint8_t*) data, len, 100);
 	return len;
 }
+
+CanServer g_canServer;
 
 /* USER CODE END 0 */
 
@@ -119,6 +132,15 @@ int main(void) {
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
 
+	g_canServer.setHandleCan(&hfdcan1);
+	g_canServer.setHandleQueueRxCan(&queueRxCanHandle);
+	g_canServer.setHandleSemaphoreTxCan(&semTxCanHandle);
+
+	if (g_canServer.init() != CanServer::Error::Ok)
+	{
+		Error_Handler();
+	}
+
 	/* USER CODE END 2 */
 
 	/* Init scheduler */
@@ -130,11 +152,20 @@ int main(void) {
 
 	/* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
+	  /* creation of semTxCan */
+	semTxCanHandle = osSemaphoreNew(1, 1, &semTxCan_attributes);
+
+	/* USER CODE BEGIN RTOS_SEMAPHORES */
+	/* add semaphores, ... */
 	/* USER CODE END RTOS_SEMAPHORES */
 
 	/* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
 	/* USER CODE END RTOS_TIMERS */
+
+	/* Create the queue(s) */
+	/* creation of queueRxCan */
+	queueRxCanHandle = osMessageQueueNew (16, sizeof(CanMsg), &queueRxCan_attributes);
 
 	/* USER CODE BEGIN RTOS_QUEUES */
 	/* add queues, ... */
@@ -347,12 +378,20 @@ static void MX_GPIO_Init(void) {
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
-
+	;
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
+	;
+}
 
+void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
+{
+	if (g_canServer.updateCanTxInterrupt(hfdcan) != CanServer::Error::Ok)
+	{
+		Error_Handler();
+	}
 }
 
 /* USER CODE END 4 */
@@ -366,9 +405,26 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 /* USER CODE END Header_startTaskCanServer */
 void startTaskCanServer(void *argument) {
 	/* USER CODE BEGIN 5 */
+	FDCAN_TxHeaderTypeDef txHeader;
+	txHeader.Identifier = 0x006;
+	txHeader.IdType = FDCAN_STANDARD_ID;
+	txHeader.TxFrameType = FDCAN_DATA_FRAME;
+	txHeader.DataLength = FDCAN_DLC_BYTES_8;
+	txHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+	txHeader.BitRateSwitch = FDCAN_BRS_OFF;
+	txHeader.FDFormat = FDCAN_CLASSIC_CAN;
+	txHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+	txHeader.MessageMarker = 0;
+
+	uint8_t txData[8] = {'j', 'e', 'j', ' ', 'd', 'r', 'e', 'k'};
 	/* Infinite loop */
-	for (;;) {
-		osDelay(1);
+	for (;;)
+	{
+		if (g_canServer.sendMsg(txHeader, txData, 8) != CanServer::Error::Ok)
+		{
+			Error_Handler();
+		}
+		osDelay(1000);
 	}
 	/* USER CODE END 5 */
 }
@@ -384,7 +440,7 @@ void startTaskCanRx(void *argument) {
 	/* USER CODE BEGIN startTaskCanRx */
 	/* Infinite loop */
 	for (;;) {
-		osDelay(1);
+		osDelay(10000);
 	}
 	/* USER CODE END startTaskCanRx */
 }
@@ -400,7 +456,7 @@ void startTaskCanTx(void *argument) {
 	/* USER CODE BEGIN startTaskCanTx */
 	/* Infinite loop */
 	for (;;) {
-		osDelay(1);
+		osDelay(10000);
 	}
 	/* USER CODE END startTaskCanTx */
 }
@@ -433,7 +489,11 @@ void Error_Handler(void) {
 	/* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 	__disable_irq();
-	while (1) {
+	osKernelLock();
+	while (1)
+	{
+		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		HAL_Delay(100);
 	}
 	/* USER CODE END Error_Handler_Debug */
 }

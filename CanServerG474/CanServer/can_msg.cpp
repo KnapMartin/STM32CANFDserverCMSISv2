@@ -12,7 +12,8 @@
 CanMsg::CanMsg()
 	: m_length{msgLen}
 	, m_data{}
-	, m_header{}
+	, m_rxHeader{}
+	, m_txHeader{}
 {
 	memset(m_data, 0, m_length);
 }
@@ -30,12 +31,28 @@ void CanMsg::setData(const uint8_t *data, uint8_t size)
 	memcpy(&m_data, data, size);
 }
 
-void CanMsg::setHeader(FDCAN_RxHeaderTypeDef header)
+uint8_t CanMsg::getData(uint8_t *dest)
 {
-	m_header = header;
+	memcpy(&m_data, dest, m_length);
+	return m_length;
 }
 
-FDCAN_RxHeaderTypeDef CanMsg::getHeader()
+void CanMsg::setRxHeader(FDCAN_RxHeaderTypeDef header)
 {
-	return m_header;
+	m_rxHeader = header;
+}
+
+FDCAN_RxHeaderTypeDef CanMsg::getRxHeader()
+{
+	return m_rxHeader;
+}
+
+void CanMsg::setTxHeader(FDCAN_TxHeaderTypeDef header)
+{
+	m_txHeader = header;
+}
+
+FDCAN_TxHeaderTypeDef CanMsg::getTxHeader()
+{
+	return m_txHeader;
 }

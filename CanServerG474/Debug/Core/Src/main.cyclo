@@ -1,13 +1,17 @@
-../Core/Src/main.cpp:82:5:int _write(int, char*, int)	1
-../Core/Src/main.cpp:94:5:int main()	1
-../Core/Src/main.cpp:181:6:void SystemClock_Config()	3
-../Core/Src/main.cpp:225:13:void MX_FDCAN1_Init()	2
-../Core/Src/main.cpp:266:13:void MX_USART2_UART_Init()	5
-../Core/Src/main.cpp:311:13:void MX_GPIO_Init()	1
-../Core/Src/main.cpp:348:6:void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef*, uint32_t)	1
-../Core/Src/main.cpp:353:6:void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef*, uint32_t)	1
-../Core/Src/main.cpp:367:6:void startTaskCanServer(void*)	1
-../Core/Src/main.cpp:383:6:void startTaskCanRx(void*)	1
-../Core/Src/main.cpp:399:6:void startTaskCanTx(void*)	1
-../Core/Src/main.cpp:416:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	2
-../Core/Src/main.cpp:432:6:void Error_Handler()	1
+../Core/Src/main.cpp:93:5:int _write(int, char*, int)	1
+../Core/Src/main.cpp:107:5:int main()	2
+../Core/Src/main.cpp:212:6:void SystemClock_Config()	3
+../Core/Src/main.cpp:256:13:void MX_FDCAN1_Init()	2
+../Core/Src/main.cpp:297:13:void MX_USART2_UART_Init()	5
+../Core/Src/main.cpp:342:13:void MX_GPIO_Init()	1
+../Core/Src/main.cpp:379:6:void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef*, uint32_t)	1
+../Core/Src/main.cpp:384:6:void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef*, uint32_t)	1
+../Core/Src/main.cpp:389:6:void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef*, uint32_t)	2
+../Core/Src/main.cpp:406:6:void startTaskCanServer(void*)	2
+../Core/Src/main.cpp:439:6:void startTaskCanRx(void*)	1
+../Core/Src/main.cpp:455:6:void startTaskCanTx(void*)	1
+../Core/Src/main.cpp:472:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	2
+../Core/Src/main.cpp:488:6:void Error_Handler()	1
+../Core/Src/main.cpp:499:1:void __static_initialization_and_destruction_0(int, int)	5
+../Core/Src/main.cpp:499:1:cpp)	1
+../Core/Src/main.cpp:499:1:cpp)	1
